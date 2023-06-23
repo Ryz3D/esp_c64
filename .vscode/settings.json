@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "stdint.h": "c",
+        "cia.h": "c",
+        "stdbool.h": "c",
+        "vic.h": "c",
+        "http_server.h": "c",
+        "esp_http_server.h": "c",
+        "timer.h": "c",
+        "uart.h": "c",
+        "gpio.h": "c",
+        "rmt.h": "c",
+        "rmt_types.h": "c",
+        "rmt_struct.h": "c",
+        "main.h": "c",
+        "esp_task_wdt.h": "c",
+        "esp_err.h": "c",
+        "sdkconfig.h": "c",
+        "cstdint": "c",
+        "cstddef": "c",
+        "stdlib.h": "c",
+        "freertos.h": "c"
+    }
+}

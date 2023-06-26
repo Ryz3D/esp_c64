@@ -51,6 +51,10 @@ int8_t cia_read(uint8_t addr_off)
 
         return port_b;
     }
+    else if (addr_off == 0x02)
+        return 0xff;
+    else if (addr_off == 0x03)
+        return 0x00;
     return 0;
 }
 

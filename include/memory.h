@@ -12,7 +12,6 @@
 extern int8_t zeropage[256], stack[256], sysvar[512], screen[1024], cia2_reg[16];
 extern int8_t basicram[38912];
 extern uint8_t ram[4096];
-extern bool charen;
 
 int8_t mem_read(uint16_t addr);
 uint16_t mem_read16(uint16_t addr);

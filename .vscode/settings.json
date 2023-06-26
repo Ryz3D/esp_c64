@@ -19,6 +19,7 @@
         "cstdint": "c",
         "cstddef": "c",
         "stdlib.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "characters.h": "c"
     }
 }

@@ -8,12 +8,14 @@ int8_t ins_buf[3];
 
 void reset()
 {
+    a = x = y = 0;
+    fN = fV = fB = fD = fZ = fC = 0;
+    fI = 1;
     stack_pointer = 0xff;
-    fN = 0, fV = 0, fB = 0, fD = 0, fI = 0, fZ = 0, fC = 0;
     pc = mem_read16(0xfffc);
 }
 
-void irq(void *args)
+void irq()
 {
     if (!fI)
     {

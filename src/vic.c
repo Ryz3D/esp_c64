@@ -20,10 +20,10 @@ void vic_write(uint16_t addr_off, int8_t d)
 
 void vic_write_screen(uint16_t addr_off, int8_t d)
 {
-    uint8_t screen_y = addr_off / 40;
-    if (screen_y <= 24)
+    if (addr_off < 1000)
     {
         uint8_t screen_x = addr_off % 40;
+        uint8_t screen_y = addr_off / 40;
         for (uint8_t char_y = 0; char_y < 8; char_y++)
         {
             uint16_t char_offset = (uint8_t)vic_reg[0x18] >> 1 ? 0x0000 : 0x0800;
@@ -32,11 +32,14 @@ void vic_write_screen(uint16_t addr_off, int8_t d)
             {
                 uint16_t window_x = 8 * (uint16_t)screen_x + char_x; // 0...319
                 uint16_t window_y = 8 * (uint16_t)screen_y + char_y; // 0...199
-                if ((char_line >> (7 - char_x)) & 1)
-                    display_buffer[window_x + window_y * 16] |= 1 << (window_y % 8);
-                else
-                    display_buffer[window_x + window_y * 16] &= ~(1 << (window_y % 8));
-                display_show();
+                if (window_x < 128 && window_y < 64)
+                {
+                    if ((char_line >> (7 - char_x)) & 1)
+                        display_buffer[window_x + (window_y / 8) * 128] |= 1 << (window_y % 8);
+                    else
+                        display_buffer[window_x + (window_y / 8) * 128] &= ~(1 << (window_y % 8));
+                    // display_show();
+                }
             }
         }
     }

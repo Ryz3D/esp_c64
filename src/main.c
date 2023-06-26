@@ -1,34 +1,54 @@
 #include "main.h"
 
-/*
-
-    KEYBOARD:
-RESTORE 42
-PORT A  9...16
-PORT B  1...8
-
-    LCD:
-MISO    37
-MOSI    35
-SCLK    36
-CS      45
-A0      39
-RST     40
-CS      41
-
-*/
+int64_t last_irq = 0;
 
 void c64_run(void *parameters)
 {
+    pc = 0xc000;
+    int64_t t_start = esp_timer_get_time();
     for (;;)
     {
-        for (uint32_t i = 0; i < 10; i++)
+        for (uint32_t i = 0; i < 10000; i++)
         {
-            exec_ins();
+            if (esp_timer_get_time() - last_irq > 16666)
+            {
+                irq();
+                last_irq = esp_timer_get_time();
+            }
             if (!gpio_get_level(42))
                 nmi();
+
+            if (pc == 0xfce2)
+            {
+                int64_t t_end = esp_timer_get_time();
+                int32_t t_duration = t_end - t_start;
+                printf("%i\n", t_duration);
+            }
+            if (pc == 0xe5cd)
+            {
+                int c = getchar();
+                if (c > 0)
+                {
+                    if (c == '\n')
+                        c = '\r';
+                    // siehe 0xEB35
+                    uint8_t kb_index = (uint8_t)mem_read(0xc6);
+                    mem_write(0x0277 + kb_index, c);
+                    mem_write(0xc6, kb_index + 1);
+                }
+            }
+            if (pc == 0xe716)
+            {
+                if (a == '\r')
+                    putchar('\n');
+                else if (a == 0x1d)
+                    putchar(' ');
+                else if ((uint8_t)a != 0x93)
+                    putchar(a);
+            }
+            exec_ins();
         }
-        vTaskDelay(20 / portTICK_PERIOD_MS);
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
 
@@ -54,41 +74,8 @@ void app_main()
     io_conf.pin_bit_mask = 1ULL << 42;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
-    display_init(20);
-
-    esp_timer_create_args_t irq_timer_config = {
-        .name = "irq_timer",
-        .callback = &irq,
-    };
-    esp_timer_handle_t irq_timer;
-    ESP_ERROR_CHECK(esp_timer_create(&irq_timer_config, &irq_timer));
+    // display_init(20);
 
     reset();
     xTaskCreate(c64_run, "c64_run", 5000, NULL, 2, NULL);
-    ESP_ERROR_CHECK(esp_timer_start_periodic(irq_timer, 16666));
 }
-
-/*
-while (1)
-{
-    if (pc == 0xe112)
-    {
-        char buf[2];
-        while (!uart_read_bytes(UART_NUM_0, buf, 1, 20 / portTICK_PERIOD_MS))
-            ;
-        uart_tx_chars(UART_NUM_0, buf, 1);
-        a = buf[0];
-        if (a == '\n')
-            a = '\r';
-        pc = 0xe117;
-    }
-    if (pc == 0xe716)
-    {
-        if (a == '\r')
-            putchar('\n');
-        else
-            putchar(a);
-    }
-    exec_ins();
-}
-*/

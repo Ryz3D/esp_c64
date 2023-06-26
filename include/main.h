@@ -6,7 +6,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
-#include "driver/timer.h"
 #include "driver/gpio.h"
 #include "esp_task_wdt.h"
 #include "sdkconfig.h"

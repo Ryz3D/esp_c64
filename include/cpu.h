@@ -12,7 +12,7 @@ extern bool fN, fV, fB, fD, fI, fZ, fC;
 extern int8_t ins_buf[3];
 
 void reset();
-void irq(void * args);
+void irq();
 void nmi();
 uint8_t s_pop();
 void s_push(int8_t d);

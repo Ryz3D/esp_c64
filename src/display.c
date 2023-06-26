@@ -1,7 +1,5 @@
 #include "display.h"
 
-// display_buffer[x + y * 16] |= 1 << (y % 8);
-
 uint8_t display_buffer[1024];
 spi_device_handle_t spi;
 
@@ -19,7 +17,7 @@ void display_init(uint8_t contrast)
     spi_device_interface_config_t devcfg = {
         .clock_speed_hz = 10 * 1000 * 1000,
         .mode = 0,
-        .spics_io_num = 45,
+        .spics_io_num = -1, // or 41
         .queue_size = 7,
     };
     ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO));

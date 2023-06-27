@@ -1,6 +1,6 @@
 #include "main.h"
 
-int64_t t_f_cpu_start;
+int64_t t_f_cpu_start = 0;
 int64_t t_last_irq = 0;
 
 void handle_uart_io()
@@ -34,15 +34,16 @@ void handle_uart_io()
 
 void loop_f_cpu_check()
 {
-    if (pc == 0xc000)
+    if (pc == 0xc000) // SYS 49152
     {
         t_f_cpu_start = esp_timer_get_time();
     }
-    if (pc == 0xfce2)
+    if (pc == 0xfce2 && t_f_cpu_start != 0)
     {
         int32_t t_duration = esp_timer_get_time() - t_f_cpu_start;
         float f_cpu = 328714 / (t_duration / 100000.0);
         printf("F_CPU = %i Hz\n", (int)f_cpu);
+        t_f_cpu_start = 0;
     }
 }
 

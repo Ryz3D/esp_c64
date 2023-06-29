@@ -73,14 +73,17 @@ void display_set_col(uint8_t col)
 
 void display_set_pixel(uint16_t x, uint16_t y, bool state)
 {
-    uint16_t pixel_index = x + (y / 8) * 128;
-    if (state)
-        display_buffer[pixel_index] |= 1 << (y % 8);
-    else
-        display_buffer[pixel_index] &= ~(1 << (y % 8));
-    display_set_page(pixel_index / 128);
-    display_set_col(pixel_index % 128);
-    display_write_d(display_buffer[pixel_index]);
+    if (x < 128 && y < 64)
+    {
+        uint16_t pixel_index = x + (y / 8) * 128;
+        if (state)
+            display_buffer[pixel_index] |= 1 << (y % 8);
+        else
+            display_buffer[pixel_index] &= ~(1 << (y % 8));
+        display_set_page(pixel_index / 128);
+        display_set_col(pixel_index % 128);
+        display_write_d(display_buffer[pixel_index]);
+    }
 }
 
 void display_show()

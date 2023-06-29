@@ -49,6 +49,7 @@ void loop_f_cpu_check()
 
 void c64_run(void *parameters)
 {
+    reset();
     for (;;)
     {
         for (uint32_t i = 0; i < 10000; i++)
@@ -93,6 +94,5 @@ void app_main()
 
     display_init(20);
 
-    reset();
     xTaskCreate(c64_run, "c64_run", 5000, NULL, 2, NULL);
 }

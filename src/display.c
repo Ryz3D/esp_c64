@@ -1,34 +1,16 @@
 #include "display.h"
 
 uint8_t display_buffer[1024];
-spi_device_handle_t spi;
 
 void display_init(uint8_t contrast)
 {
-    // MSB first?
-    spi_bus_config_t buscfg = {
-        .miso_io_num = 37,
-        .mosi_io_num = 35,
-        .sclk_io_num = 36,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 16 * 320 * 2 + 8,
-    };
-    spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = 10 * 1000 * 1000,
-        .mode = 0,
-        .spics_io_num = -1, // or 41
-        .queue_size = 7,
-    };
-    ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO));
-    ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST, &devcfg, &spi));
-
     gpio_config_t io_conf;
     io_conf.mode = GPIO_MODE_OUTPUT;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.pin_bit_mask = (1ULL << 39) | (1ULL << 40) | (1ULL << 41); // A0, RST, CS
+    // SDA, SCL, A0, RST, CS
+    io_conf.pin_bit_mask = (1ULL << 35) | (1ULL << 36) | (1ULL << 39) | (1ULL << 40) | (1ULL << 41);
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     gpio_set_level(40, 0); // RST
@@ -52,26 +34,28 @@ void display_init(uint8_t contrast)
     display_write_c(0xaf);
 }
 
+void shift_out_impl(uint8_t val)
+{
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        gpio_set_level(35, (val & 128) != 0);
+        val <<= 1;
+
+        gpio_set_level(36, 1);
+        gpio_set_level(36, 0);
+    }
+}
+
 void display_write_c(uint8_t command)
 {
     gpio_set_level(39, 0); // A0
-    spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
-    t.length = 1;
-    t.tx_buffer = &command;
-    t.user = (void *)0;
-    spi_device_transmit(spi, &t);
+    shift_out_impl(command);
     gpio_set_level(39, 1); // A0
 }
 
 void display_write_d(uint8_t data)
 {
-    spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
-    t.length = 1;
-    t.tx_buffer = &data;
-    t.user = (void *)0;
-    spi_device_transmit(spi, &t);
+    shift_out_impl(data);
 }
 
 void display_set_page(uint8_t page)
@@ -85,6 +69,18 @@ void display_set_col(uint8_t col)
     display_write_c(0x10 | high_nibble);
     uint8_t low_nibble = col & 0x0f;
     display_write_c(low_nibble);
+}
+
+void display_set_pixel(uint16_t x, uint16_t y, bool state)
+{
+    uint16_t pixel_index = x + (y / 8) * 128;
+    if (state)
+        display_buffer[pixel_index] |= 1 << (y % 8);
+    else
+        display_buffer[pixel_index] &= ~(1 << (y % 8));
+    display_set_page(pixel_index / 128);
+    display_set_col(pixel_index % 128);
+    display_write_d(display_buffer[pixel_index]);
 }
 
 void display_show()

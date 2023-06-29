@@ -41,7 +41,7 @@ void loop_f_cpu_check()
     if (pc == 0xfce2 && t_f_cpu_start != 0)
     {
         int32_t t_duration = esp_timer_get_time() - t_f_cpu_start;
-        float f_cpu = 328714 / (t_duration / 100000.0);
+        float f_cpu = 328714 / (t_duration / 1000000.0);
         printf("F_CPU = %i Hz\n", (int)f_cpu);
         t_f_cpu_start = 0;
     }
@@ -91,7 +91,7 @@ void app_main()
     io_conf.pin_bit_mask = 1ULL << 42;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
-    // display_init(20);
+    display_init(20);
 
     reset();
     xTaskCreate(c64_run, "c64_run", 5000, NULL, 2, NULL);

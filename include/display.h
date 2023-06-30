@@ -7,14 +7,27 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <driver/gpio.h>
-#include <driver/spi_master.h>
 
-extern uint8_t display_buffer[1024];
+#define PIN_LCD_RD 18
+#define PIN_LCD_WR 19
+#define PIN_LCD_RS 20
+#define PIN_LCD_CS 21
+#define PIN_LCD_RST 33
+#define PIN_LCD_D0 34
+#define PIN_LCD_D1 35
+#define PIN_LCD_D2 36
+#define PIN_LCD_D3 37
+#define PIN_LCD_D4 38
+#define PIN_LCD_D5 39
+#define PIN_LCD_D6 40
+#define PIN_LCD_D7 41
 
-void display_init(uint8_t contrast);
+void display_init();
+void display_write(uint8_t data);
+void display_write16(uint16_t data);
 void display_write_c(uint8_t command);
-void display_write_d(uint8_t data);
-void display_set_page(uint8_t page);
-void display_set_col(uint8_t col);
+void display_write_c16(uint16_t command);
+void display_write_cd(uint8_t command, uint8_t data);
+void display_write_cd16(uint16_t command, uint16_t data);
+void display_write_cd_push(uint16_t command, uint8_t *data, uint8_t len);
 void display_set_pixel(uint16_t x, uint16_t y, bool state);
-void display_show();

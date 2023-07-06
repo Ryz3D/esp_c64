@@ -2,6 +2,7 @@
 
 uint16_t color_bright = (0b01110 << 11) | (0b011011 << 5) | 0b11101;
 uint16_t color_dark = (0b00101 << 11) | (0b001000 << 5) | 0b11010;
+uint8_t display_zoom = 0;
 
 void display_init()
 {
@@ -146,42 +147,39 @@ void display_write_cd16(uint16_t command, uint16_t data)
     display_write16(data);
 }
 
+void display_set_space(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
+{
+    display_write_c(0x2A);
+    display_write16(x1);
+    display_write16(x2);
+    display_write_c(0x2B);
+    display_write16(y1);
+    display_write16(y2);
+}
+
 void display_write_pixel(bool state)
 {
     display_write16(state ? color_bright : color_dark);
+    if (display_zoom)
+        display_write16(state ? color_bright : color_dark);
 }
 
 void display_init_write(uint16_t x, uint16_t y)
 {
-    display_write_c(0x2A); // X
-    display_write16(x);
-    display_write16(x + 8);
-    display_write_c(0x2B); // Y
-    display_write16(y);
-    display_write16(y + 8);
-    display_write_c(0x2C); // C
+    display_set_space(x, y, x + (display_zoom ? 16 : 8), y + (display_zoom ? 16 : 8));
+    display_write_c(0x2C);
 }
 
 void display_set_pixel(uint16_t x, uint16_t y, bool state)
 {
-    display_write_c(0x2A); // X
-    display_write16(x);
-    display_write16(x);
-    display_write_c(0x2B); // Y
-    display_write16(y);
-    display_write16(y);
-    display_write_c(0x2C); // C
+    display_set_space(x, y, x, y);
+    display_write_c(0x2C);
     display_write_pixel(state);
 }
 
 void display_clear()
 {
-    display_write_c(0x2A); // X
-    display_write16(0);
-    display_write16(480);
-    display_write_c(0x2B); // Y
-    display_write16(0);
-    display_write16(320);
+    display_set_space(0, 0, 480, 320);
     display_write_c(0x2C);
     for (uint32_t i = 0; i < 480 * 320; i++)
         display_write_pixel(0);

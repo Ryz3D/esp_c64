@@ -29,5 +29,4 @@ void display_write_c(uint8_t command);
 void display_write_c16(uint16_t command);
 void display_write_cd(uint8_t command, uint8_t data);
 void display_write_cd16(uint16_t command, uint16_t data);
-void display_write_cd_push(uint16_t command, uint8_t *data, uint8_t len);
 void display_set_pixel(uint16_t x, uint16_t y, bool state);

@@ -25,73 +25,82 @@ void display_init()
     display_write_c(0x00);
     display_write_c(0x00);
 
-    uint8_t table[] = {
-        0xF1, 6, 0x36, 0x04, 0x00, 0x3C, 0x0F, 0x8F,
-        0xF2, 9, 0x18, 0xA3, 0x12, 0x02, 0xB2, 0x12, 0xFF, 0x10, 0x00,
-        0xF8, 2, 0x21, 0x04,
-        0xF9, 2, 0x00, 0x08,
-        0x36, 1, 0x08,
-        0xB4, 1, 0x00,
-        0xC1, 1, 0x41,
-        0xC5, 4, 0x00, 0x91, 0x80, 0x00,
-        0xE0, 15, 0x0F, 0x1F, 0x1C, 0x0C, 0x0F, 0x08, 0x48, 0x98, 0x37, 0x0A, 0x13, 0x04, 0x11, 0x0D, 0x00,
-        0xE1, 15, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
-        0x3A, 1, 0x55,
-        0x11, 0,
-        0x36, 1, 0x28,
-        0x7F, 120,
-        0x29, 0
-        /*
-        0x01, 0,            //Soft Reset
-        TFTLCD_DELAY8, 150,  // .kbv will power up with ONLY reset, sleep out, display on
-        0x28, 0,            //Display Off
-        0x3A, 1, 0x55,      //Pixel read=565, write=565.
-        0xC0, 2, 0x0d, 0x0d,        //Power Control 1 [0E 0E]
-        0xC1, 2, 0x43, 0x00,        //Power Control 2 [43 00]
-        0xC2, 1, 0x00,      //Power Control 3 [33]
-        0xC5, 4, 0x00, 0x48, 0x00, 0x48,    //VCOM  Control 1 [00 40 00 40]
-        0xB4, 1, 0x00,      //Inversion Control [00]
-        0xB6, 3, 0x02, 0x02, 0x3B,  // Display Function Control [02 02 3B]
-        0xE0, 15,0x0F, 0x24, 0x1C, 0x0A, 0x0F, 0x08, 0x43, 0x88, 0x32, 0x0F, 0x10, 0x06, 0x0F, 0x07, 0x00,
-        0xE1, 15,0x0F, 0x38, 0x30, 0x09, 0x0F, 0x0F, 0x4E, 0x77, 0x3C, 0x07, 0x10, 0x05, 0x23, 0x1B, 0x00,
-        0x11, 0,            //Sleep Out
-        TFTLCD_DELAY8, 150,
-        0x29, 0         //Display On
-        */
-    };
-    for (uint8_t i = 0; i < sizeof(table); i += 2)
-    {
-        if (table[i] == 0x7f)
-            vTaskDelay(table[i + 1]);
-        else
-            display_write_cd_push(table[i], &table[i + 2], table[i + 1]);
-        i += table[i + 1];
-    }
+    vTaskDelay(200 / portTICK_PERIOD_MS);
 
-    uint8_t val;
-    switch (1)
-    {
-    case 0:
-        val = 0x48; // 0 degree
-        break;
-    case 1:
-        val = 0x38; // 90 degree
-        break;
-    case 2:
-        val = 0x88; // 180 degree
-        break;
-    case 3:
-        val = 0xe8; // 270 degree
-        break;
-    }
-    // display_write_cd(0x36, val);
+    display_write_c(0xF1);
+    display_write(0x36);
+    display_write(0x04);
+    display_write(0x00);
+    display_write(0x3C);
+    display_write(0x0F);
+    display_write(0x8F);
+    display_write_c(0xF2);
+    display_write(0x18);
+    display_write(0xA3);
+    display_write(0x12);
+    display_write(0x02);
+    display_write(0xB2);
+    display_write(0x12);
+    display_write(0xFF);
+    display_write(0x10);
+    display_write(0x00);
+    display_write_cd16(0xF8, 0x2104);
+    display_write_cd16(0xF9, 0x0008);
+    display_write_cd(0x36, 0x08);
+    display_write_cd(0xB4, 0x00);
+    display_write_cd(0xC1, 0x41);
+    display_write_c(0xC5);
+    display_write(0x41);
+    display_write(0x41);
+    display_write(0x41);
+    display_write(0x41);
+    display_write_c(0xE0);
+    display_write(0x0F);
+    display_write(0x1F);
+    display_write(0x1C);
+    display_write(0x0C);
+    display_write(0x0F);
+    display_write(0x08);
+    display_write(0x48);
+    display_write(0x98);
+    display_write(0x37);
+    display_write(0x0A);
+    display_write(0x13);
+    display_write(0x04);
+    display_write(0x11);
+    display_write(0x0D);
+    display_write(0x00);
+    display_write_c(0xE1);
+    display_write(0x0F);
+    display_write(0x32);
+    display_write(0x2E);
+    display_write(0x0B);
+    display_write(0x0D);
+    display_write(0x05);
+    display_write(0x47);
+    display_write(0x75);
+    display_write(0x37);
+    display_write(0x06);
+    display_write(0x10);
+    display_write(0x03);
+    display_write(0x24);
+    display_write(0x20);
+    display_write(0x00);
+    display_write_cd(0x3A, 0x55);
+    display_write_c(0x11);
+    display_write_cd(0x36, 0x28);
+    vTaskDelay(120 / portTICK_PERIOD_MS);
+    display_write_c(0x29);
+    // rotation 0: 0x48, 1: 0x38, 2: 0x88, 3: 0xe8
+    display_write_cd(0x36, 0xe8);
+
+    for (uint16_t y = 0; y < 320; y++)
+        for (uint16_t x = 0; x < 480; x++)
+            display_set_pixel(x, y, 0);
 }
-
-bool cmd = 0;
 
 void display_write(uint8_t data)
 {
-    printf("%c %2x\n", cmd ? 'C' : 'D', data);
     gpio_set_level(PIN_LCD_D0, (data >> 0) & 1);
     gpio_set_level(PIN_LCD_D1, (data >> 1) & 1);
     gpio_set_level(PIN_LCD_D2, (data >> 2) & 1);
@@ -113,18 +122,14 @@ void display_write16(uint16_t data)
 void display_write_c(uint8_t command)
 {
     gpio_set_level(PIN_LCD_RS, 0);
-    cmd = 1;
     display_write(command);
-    cmd = 0;
     gpio_set_level(PIN_LCD_RS, 1);
 }
 
 void display_write_c16(uint16_t command)
 {
     gpio_set_level(PIN_LCD_RS, 0);
-    cmd = 1;
     display_write16(command);
-    cmd = 0;
     gpio_set_level(PIN_LCD_RS, 1);
 }
 
@@ -140,21 +145,25 @@ void display_write_cd16(uint16_t command, uint16_t data)
     display_write16(data);
 }
 
-void display_write_cd_push(uint16_t command, uint8_t *data, uint8_t len)
-{
-    display_write_c16(command);
-    for (uint8_t i = 0; i < len; i++)
-        display_write(data[i]);
-}
-
 void display_set_pixel(uint16_t x, uint16_t y, bool state)
 {
-    uint16_t b = 0b0010100010100101;
-    uint16_t d = 0b0000100000100001;
+    uint16_t b = 0;
+    uint16_t d = 0;
 
-    display_write_cd16(0x2A, x);
+    b |= 0b01110 << 11;
+    b |= 0b011011 << 5;
+    b |= 0b11101;
+
+    d |= 0b00101 << 11;
+    d |= 0b001000 << 5;
+    d |= 0b11010;
+
+    display_write_c(0x2A); // XC
     display_write16(x);
-    display_write_cd16(0x2B, y);
+    display_write16(x);
+    display_write_c(0x2B); // YC
     display_write16(y);
-    display_write_cd16(0x2C, state ? b : d);
+    display_write16(y);
+    display_write_c(0x2C); // CC
+    display_write16(state ? b : d);
 }

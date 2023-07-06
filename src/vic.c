@@ -32,7 +32,15 @@ void vic_write_screen(uint16_t addr_off, int8_t d)
             {
                 uint16_t window_x = 8 * (uint16_t)screen_x + char_x; // 0...319
                 uint16_t window_y = 8 * (uint16_t)screen_y + char_y; // 0...199
-                display_set_pixel(window_x, window_y, (char_line >> (7 - char_x)) & 1);
+                window_x *= 2;
+                window_y *= 2;
+                if (window_x < 479 && window_y < 319)
+                {
+                    display_set_pixel(window_x, window_y, (char_line >> (7 - char_x)) & 1);
+                    display_set_pixel(window_x, window_y + 1, (char_line >> (7 - char_x)) & 1);
+                    display_set_pixel(window_x + 1, window_y, (char_line >> (7 - char_x)) & 1);
+                    display_set_pixel(window_x + 1, window_y + 1, (char_line >> (7 - char_x)) & 1);
+                }
             }
         }
     }

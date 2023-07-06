@@ -92,7 +92,7 @@ void app_main()
     io_conf.pin_bit_mask = 1ULL << 42;
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
-    display_init(20);
+    display_init();
 
     xTaskCreate(c64_run, "c64_run", 5000, NULL, 2, NULL);
 }

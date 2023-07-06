@@ -1,5 +1,8 @@
 #include "display.h"
 
+uint16_t color_bright = (0b01110 << 11) | (0b011011 << 5) | 0b11101;
+uint16_t color_dark = (0b00101 << 11) | (0b001000 << 5) | 0b11010;
+
 void display_init()
 {
     gpio_config_t io_conf;
@@ -8,8 +11,7 @@ void display_init()
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.pin_bit_mask = 0;
-    io_conf.pin_bit_mask |= (1ULL << PIN_LCD_RD) | (1ULL << PIN_LCD_WR) | (1ULL << PIN_LCD_RS) | (1ULL << PIN_LCD_CS) | (1ULL << PIN_LCD_RST);
-    io_conf.pin_bit_mask |= (1ULL << PIN_LCD_D0) | (1ULL << PIN_LCD_D1) | (1ULL << PIN_LCD_D2) | (1ULL << PIN_LCD_D3) | (1ULL << PIN_LCD_D4) | (1ULL << PIN_LCD_D5) | (1ULL << PIN_LCD_D6) | (1ULL << PIN_LCD_D7);
+    io_conf.pin_bit_mask |= (1ULL << PIN_LCD_RD) | (1ULL << PIN_LCD_WR) | (1ULL << PIN_LCD_RS) | (1ULL << PIN_LCD_CS) | (1ULL << PIN_LCD_RST) | (1ULL << PIN_LCD_D0) | (1ULL << PIN_LCD_D1) | (1ULL << PIN_LCD_D2) | (1ULL << PIN_LCD_D3) | (1ULL << PIN_LCD_D4) | (1ULL << PIN_LCD_D5) | (1ULL << PIN_LCD_D6) | (1ULL << PIN_LCD_D7);
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     gpio_set_level(PIN_LCD_CS, 1);
@@ -46,7 +48,7 @@ void display_init()
     display_write(0x00);
     display_write_cd16(0xF8, 0x2104);
     display_write_cd16(0xF9, 0x0008);
-    display_write_cd(0x36, 0x08);
+    // display_write_cd(0x36, 0x08);
     display_write_cd(0xB4, 0x00);
     display_write_cd(0xC1, 0x41);
     display_write_c(0xC5);
@@ -88,15 +90,14 @@ void display_init()
     display_write(0x00);
     display_write_cd(0x3A, 0x55);
     display_write_c(0x11);
-    display_write_cd(0x36, 0x28);
+    // display_write_cd(0x36, 0x28);
     vTaskDelay(120 / portTICK_PERIOD_MS);
     display_write_c(0x29);
-    // rotation 0: 0x48, 1: 0x38, 2: 0x88, 3: 0xe8
-    display_write_cd(0x36, 0xe8);
 
-    for (uint16_t y = 0; y < 320; y++)
-        for (uint16_t x = 0; x < 480; x++)
-            display_set_pixel(x, y, 0);
+    // rotation 0: 0x48, 1: 0x38, 2: 0x88, 3: 0xe8
+    display_write_cd(0x36, 0xe8); // TODO: e0?
+
+    display_clear();
 }
 
 void display_write(uint8_t data)
@@ -145,25 +146,43 @@ void display_write_cd16(uint16_t command, uint16_t data)
     display_write16(data);
 }
 
+void display_write_pixel(bool state)
+{
+    display_write16(state ? color_bright : color_dark);
+}
+
+void display_init_write(uint16_t x, uint16_t y)
+{
+    display_write_c(0x2A); // X
+    display_write16(x);
+    display_write16(x + 8);
+    display_write_c(0x2B); // Y
+    display_write16(y);
+    display_write16(y + 8);
+    display_write_c(0x2C); // C
+}
+
 void display_set_pixel(uint16_t x, uint16_t y, bool state)
 {
-    uint16_t b = 0;
-    uint16_t d = 0;
-
-    b |= 0b01110 << 11;
-    b |= 0b011011 << 5;
-    b |= 0b11101;
-
-    d |= 0b00101 << 11;
-    d |= 0b001000 << 5;
-    d |= 0b11010;
-
-    display_write_c(0x2A); // XC
+    display_write_c(0x2A); // X
     display_write16(x);
     display_write16(x);
-    display_write_c(0x2B); // YC
+    display_write_c(0x2B); // Y
     display_write16(y);
     display_write16(y);
-    display_write_c(0x2C); // CC
-    display_write16(state ? b : d);
+    display_write_c(0x2C); // C
+    display_write_pixel(state);
+}
+
+void display_clear()
+{
+    display_write_c(0x2A); // X
+    display_write16(0);
+    display_write16(480);
+    display_write_c(0x2B); // Y
+    display_write16(0);
+    display_write16(320);
+    display_write_c(0x2C);
+    for (uint32_t i = 0; i < 480 * 320; i++)
+        display_write_pixel(0);
 }

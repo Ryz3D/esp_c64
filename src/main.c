@@ -5,30 +5,33 @@ int64_t t_last_irq = 0;
 
 void handle_uart_io()
 {
-    if (pc == 0xe5cd)
+    if (gpio_get_level(17))
     {
-        // siehe 0xEB35
-        uint8_t kb_index = (uint8_t)mem_read(0xc6);
-        if (kb_index < (uint8_t)mem_read(0x0289))
+        if (pc == 0xe5cd)
         {
-            int c = getchar();
-            if (c > 0)
+            // siehe 0xEB35
+            uint8_t kb_index = (uint8_t)mem_read(0xc6);
+            if (kb_index < (uint8_t)mem_read(0x0289))
             {
-                if (c == '\n')
-                    c = '\r';
-                mem_write(0x0277 + kb_index, c);
-                mem_write(0xc6, kb_index + 1);
+                int c = getchar();
+                if (c > 0)
+                {
+                    if (c == '\n')
+                        c = '\r';
+                    mem_write(0x0277 + kb_index, c);
+                    mem_write(0xc6, kb_index + 1);
+                }
             }
         }
-    }
-    if (pc == 0xe716)
-    {
-        if (a == '\r')
-            putchar('\n');
-        else if (a == 0x1d)
-            putchar(' ');
-        else if ((uint8_t)a != 0x93)
-            putchar(a);
+        if (pc == 0xe716)
+        {
+            if (a == '\r')
+                putchar('\n');
+            else if (a == 0x1d)
+                putchar(' ');
+            else if ((uint8_t)a != 0x93)
+                putchar(a);
+        }
     }
 }
 
@@ -89,7 +92,7 @@ void app_main()
     io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.pin_bit_mask = 1ULL << 42;
+    io_conf.pin_bit_mask = (1ULL << 42) | (1ULL << 17);
     ESP_ERROR_CHECK(gpio_config(&io_conf));
 
     display_init();

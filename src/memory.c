@@ -140,6 +140,42 @@ void mem_write(uint16_t addr, int8_t d)
         addr_off -= 0xc000;
         // free ram
         ram[addr_off] = d;
+
+        if (addr == 0xcff1)
+            display_zoom = d;
+        if (addr == 0xcff2)
+        {
+            if (d == 0)
+            {
+                // Blau
+                color_bright = (0b01110 << 11) | (0b011011 << 5) | 0b11101;
+                color_dark = (0b00101 << 11) | (0b001000 << 5) | 0b11010;
+            }
+            else if (d == 1)
+            {
+                // Grün
+                color_bright = (0b01011 << 11) | (0b100011 << 5) | 0b01000;
+                color_dark = (0b00001 << 11) | (0b001010 << 5) | 0b00100;
+            }
+            else if (d == 2)
+            {
+                // Schwarz/Weiß
+                color_bright = (0b11111 << 11) | (0b111111 << 5) | 0b11111;
+                color_dark = (0b00000 << 11) | (0b000000 << 5) | 0b00000;
+            }
+            else if (d == 3)
+            {
+                // Weiß/Schwarz
+                color_bright = (0b00000 << 11) | (0b000000 << 5) | 0b00000;
+                color_dark = (0b11111 << 11) | (0b111111 << 5) | 0b11111;
+            }
+            else if (d == 4)
+            {
+                // Grau/Blau
+                color_bright = (0b01010 << 11) | (0b110000 << 5) | 0b11111;
+                color_dark = (0b00100 << 11) | (0b001000 << 5) | 0b00100;
+            }
+        }
     }
     else if (addr < 0xd400)
     {

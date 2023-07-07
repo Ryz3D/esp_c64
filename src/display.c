@@ -166,7 +166,10 @@ void display_write_pixel(bool state)
 
 void display_init_write(uint16_t x, uint16_t y)
 {
-    display_set_space(x, y, x + (display_zoom ? 16 : 8), y + (display_zoom ? 16 : 8));
+    uint16_t x_off = display_zoom ? 0 : 80;
+    uint16_t y_off = display_zoom ? 0 : 60;
+    uint16_t char_size = display_zoom ? 16 : 8;
+    display_set_space(x + x_off, y + y_off, x + x_off + char_size, y + y_off + char_size);
     display_write_c(0x2C);
 }
 

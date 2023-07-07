@@ -53,7 +53,7 @@ void loop_f_cpu_check()
 void c64_run(void *parameters)
 {
     reset();
-    ram[0xff0] = 1; // uart
+    ram[0xff0] = 0; // uart
     ram[0xff1] = 0; // zoom
     ram[0xff2] = 0; // color
     while (1)
@@ -66,38 +66,13 @@ void c64_run(void *parameters)
                 t_last_irq = esp_timer_get_time();
             }
             if (!gpio_get_level(42))
-            {
                 nmi();
+            if (pc == 0xe544)
                 display_clear();
-            }
 
             handle_uart_io();
             loop_f_cpu_check();
             exec_ins();
-        }
-        display_zoom = ram[0xff1];
-        switch (ram[0xff2])
-        {
-        case 1: // Grün
-            color_bright = (0b01011 << 11) | (0b100011 << 5) | 0b01000;
-            color_dark = (0b00001 << 11) | (0b001010 << 5) | 0b00100;
-            break;
-        case 2: // Schwarz/Weiß
-            color_bright = (0b11111 << 11) | (0b111111 << 5) | 0b11111;
-            color_dark = (0b00000 << 11) | (0b000000 << 5) | 0b00000;
-            break;
-        case 3: // Weiß/Schwarz
-            color_bright = (0b00000 << 11) | (0b000000 << 5) | 0b00000;
-            color_dark = (0b11111 << 11) | (0b111111 << 5) | 0b11111;
-            break;
-        case 4: // Grau/Blau
-            color_bright = (0b01010 << 11) | (0b110000 << 5) | 0b11111;
-            color_dark = (0b00100 << 11) | (0b001000 << 5) | 0b00100;
-            break;
-        default: // Blau
-            color_bright = (0b01110 << 11) | (0b011011 << 5) | 0b11101;
-            color_dark = (0b00101 << 11) | (0b001000 << 5) | 0b11010;
-            break;
         }
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }

@@ -55,6 +55,8 @@ int8_t cia_read(uint8_t addr_off)
         return 0xff;
     else if (addr_off == 0x03)
         return 0x00;
+    else if (addr_off == 0x04 || addr_off == 0x05 || addr_off == 0x06 || addr_off == 0x07)
+        return (uint8_t)micros();
     return 0;
 }
 

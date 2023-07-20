@@ -49,7 +49,6 @@ void display_init()
     display_write(0x00);
     display_write_cd16(0xF8, 0x2104);
     display_write_cd16(0xF9, 0x0008);
-    // display_write_cd(0x36, 0x08);
     display_write_cd(0xB4, 0x00);
     display_write_cd(0xC1, 0x41);
     display_write_c(0xC5);
@@ -91,12 +90,11 @@ void display_init()
     display_write(0x00);
     display_write_cd(0x3A, 0x55);
     display_write_c(0x11);
-    // display_write_cd(0x36, 0x28);
     vTaskDelay(120 / portTICK_PERIOD_MS);
     display_write_c(0x29);
 
     // rotation 0: 0x48, 1: 0x38, 2: 0x88, 3: 0xe8
-    display_write_cd(0x36, 0xe8); // TODO: e0?
+    display_write_cd(0x36, 0xe8);
 
     display_clear();
 }
@@ -164,13 +162,17 @@ void display_write_pixel(bool state)
         display_write16(state ? color_bright : color_dark);
 }
 
-void display_init_write(uint16_t x, uint16_t y)
+bool display_init_write(uint16_t x, uint16_t y)
 {
     uint16_t x_off = display_zoom ? 0 : 80;
     uint16_t y_off = display_zoom ? 0 : 60;
-    uint16_t char_size = display_zoom ? 16 : 8;
-    display_set_space(x + x_off, y + y_off, x + x_off + char_size, y + y_off + char_size);
+    uint16_t factor = display_zoom ? 2 : 1;
+    uint16_t char_size = display_zoom ? 15 : 7;
+    if (x * factor + x_off + char_size >= 480 || y * factor + y_off + char_size >= 320)
+        return false;
+    display_set_space(x * factor + x_off, y * factor + y_off, x * factor + x_off + char_size, y * factor + y_off + char_size);
     display_write_c(0x2C);
+    return true;
 }
 
 void display_set_pixel(uint16_t x, uint16_t y, bool state)

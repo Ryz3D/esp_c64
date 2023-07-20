@@ -30,11 +30,8 @@ void vic_write_screen(uint16_t addr_off, int8_t d)
             {
                 uint16_t char_offset = (uint8_t)vic_reg[0x18] >> 1 ? 0x0000 : 0x0800;
                 uint8_t char_line = characters[(uint8_t)d * 8 + char_y + char_offset];
-                for (uint8_t char_x = 0; char_x < 8; char_x++)
-                    display_write_pixel((char_line >> (7 - char_x)) & 1);
-                if (display_zoom)
-                    for (uint8_t char_x = 0; char_x < 8; char_x++)
-                        display_write_pixel((char_line >> (7 - char_x)) & 1);
+                for (uint8_t char_x = 0; char_x < (display_zoom ? 16 : 8); char_x++)
+                    display_write_pixel((char_line >> (7 - (char_x % 8))) & 1);
             }
         }
     }

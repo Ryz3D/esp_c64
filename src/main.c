@@ -53,9 +53,7 @@ void loop_f_cpu_check()
 void c64_run(void *parameters)
 {
     reset();
-    ram[0xff0] = 0; // uart
-    ram[0xff1] = 0; // zoom
-    ram[0xff2] = 0; // color
+    ram[0xff0] = ram[0xff1] = ram[0xff2] = 1;
     while (1)
     {
         for (uint32_t i = 0; i < 10000; i++)

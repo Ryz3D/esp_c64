@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
 
 extern uint8_t port_a;
